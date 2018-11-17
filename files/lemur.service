@@ -1,0 +1,31 @@
+[Unit]
+Description=Lemur Service
+ConditionPathExists=/www/lemur
+After=network.target
+
+[Service]
+Environment=PYTHONPATH=/www/lemur/
+Environment=LEMUR_CONF=/etc/lemur/lemur.conf.py
+Type=simple
+User=lemur
+Group=lemur
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+
+
+WorkingDirectory=/www/lemur
+ExecStart=/www/lemur/bin/python3 /www/lemur/lemur/manage.py start
+
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/log/lemur
+ExecStartPre=/bin/chown syslog:adm /var/log/lemur
+ExecStartPre=/bin/chmod 755 /var/log/lemur
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=lemur
+
+[Install]
+WantedBy=multi-user.target

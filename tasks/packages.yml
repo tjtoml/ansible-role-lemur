@@ -1,0 +1,28 @@
+---
+- name: Install dependency packages
+  apt:
+    state: present
+    name: ['nodejs',
+           'nodejs-legacy',
+           'python-pip',
+           'python-dev',
+           'python3-dev',
+           'libpq-dev',
+           'build-essential',
+           'libssl-dev',
+           'libffi-dev',
+           'libsasl2-dev',
+           'libldap2-dev',
+           'nginx',
+           'git',
+           'npm',
+           'postgresql',
+           'python-psycopg2']
+
+- name: Install pip packages
+  pip:
+    name: ['virtualenv', 
+           'ptyprocess', 
+           'pexpect']
+
+# vim:ft=ansible

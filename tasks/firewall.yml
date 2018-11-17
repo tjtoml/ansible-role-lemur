@@ -1,0 +1,26 @@
+---
+- name: Open ssh port on the firewall
+  firewalld:
+    service: ssh
+    permanent: yes
+    state: enabled
+
+- name: Open http port on the firewall
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+
+- name: Open https port on the firewall
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+
+- name: Make sure the firewall is on and enabled
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+
+# vim:ft=ansible

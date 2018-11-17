@@ -1,0 +1,30 @@
+---
+- name: Install dependency packages
+  yum:
+    state: present
+    name: ['nodejs',
+           'python-pip',
+           'python-devel',
+           'python36',
+           'python36-devel',
+           'postgresql-libs',
+           'gcc',
+           'gcc-c++',
+           'make',
+           'openssl-devel',
+           'libffi-devel',
+           'cyrus-sasl-devel',
+           'openldap-devel',
+           'nginx',
+           'git',
+           'npm',
+           'python-psycopg2',
+           'postgresql96-contrib']
+
+- name: Install pip packages
+  pip:
+    name: ['virtualenv', 
+           'ptyprocess', 
+           'pexpect']
+
+# vim:ft=ansible

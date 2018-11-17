@@ -1,0 +1,14 @@
+---
+- name: Copy over lemur nginx non-SSL config
+  copy:
+    src: lemur.nginx.conf
+    dest: /etc/nginx/sites-available/lemur
+
+- name: Enable lemur nginx non-SSL config
+  file:
+    path: /etc/nginx/sites-enabled/lemur
+    state: link
+    src: /etc/nginx/sites-available/lemur
+  notify: restart nginx
+
+# vim:ft=ansible

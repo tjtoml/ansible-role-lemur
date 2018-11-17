@@ -1,0 +1,68 @@
+---
+- name: Delete flag file if rebuilding
+  file:
+    path: /etc/lemur/compileSuccess
+    state: absent
+  when: rebuild
+
+- name: Check for flag file
+  stat:
+    path: /etc/lemur/compileSuccess
+  register: compile_success
+
+- name: Create lemur virtualenv
+  become: true
+  become_user: lemur
+  become_method: su
+  shell: "virtualenv -p python3 lemur"
+  args:
+    chdir: /www/
+    creates: /www/lemur/bin/activate
+  when: ansible_os_family == "Debian"
+
+- name: Create lemur virtualenv
+  become: true
+  become_user: lemur
+  become_method: su
+  shell: "virtualenv -p python36 lemur"
+  args:
+    chdir: /www/
+    creates: /www/lemur/bin/activate
+  when: ansible_os_family == "RedHat"
+
+- name: Copy over virtualenv exec template
+  template:
+    src: venv_exec.j2
+    dest: "{{ venv }}/exec"
+    mode: 0755
+    owner: lemur
+    group: lemur
+
+- name: Build lemur (Takes a LONG time)
+  become: true
+  become_user: lemur
+  become_method: su
+  command: "{{ venv }}/exec make release"
+  args:
+    chdir: /www/lemur/
+  when: not compile_success.stat.exists
+
+- name: Rebuild lemur (quicker; verifies static assets have been compiled)
+  become: true
+  become_user: lemur
+  become_method: su
+  command: "{{ venv }}/exec make release"
+  args:
+    chdir: /www/lemur/
+  when: not compile_success.stat.exists
+
+- name: Create a flag file indicating successful compilation
+  copy:
+    content: ""
+    dest: /etc/lemur/compileSuccess
+    force: no
+    group: root
+    owner: root
+    mode: 0700
+
+# vim:ft=ansible

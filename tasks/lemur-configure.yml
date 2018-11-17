@@ -1,0 +1,51 @@
+---
+- name: Copy over lemur.service file
+  copy:
+    src: lemur.service
+    dest: /etc/systemd/system/lemur.service
+
+- name: Apply lemur.conf.py template
+  template:
+    src: lemur.conf.py.j2
+    dest: /etc/lemur/lemur.conf.py
+    owner: root
+    group: lemur
+    mode: 0640
+  notify: restart lemur
+
+- name: Copy over certificate for LDAPS authentication
+  copy:
+    src: atl-PDC-ldaps.pem
+    dest: /etc/lemur/atl-PDC-ldaps.pem
+    owner: root
+    group: root
+  notify: restart lemur
+
+- name: Check to see if database has already been initialized
+  stat:
+    path: /etc/lemur/initSuccess
+  register: init_success
+
+- name: Initialize lemur database 
+  become: true
+  become_user: lemur
+  become_method: su
+  expect:
+    command: "{{ venv }}/exec lemur -c /etc/lemur/lemur.conf.py init"
+    responses:
+      (?i)password: "{{ lemur_admin_password }}"
+  args:
+    chdir: /www/lemur/lemur
+  when: not init_success.stat.exists
+
+- name: Create a flag file for successful database initialization
+  copy:
+    content: ""
+    dest: /etc/lemur/initSuccess
+    force: no
+    group: root
+    owner: root
+    mode: 0700
+
+
+# vim:ft=ansible

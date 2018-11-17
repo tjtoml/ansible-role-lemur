@@ -1,0 +1,34 @@
+---
+- name: Create lemur database
+  become: true
+  become_user: postgres
+  become_method: su
+  postgresql_db:
+    name: lemur
+
+- name: Ensure lemur user has access to database
+  become: true
+  become_user: postgres
+  become_method: su
+  postgresql_user:
+    db: lemur
+    name: lemur
+    password: "{{ lemur_db_password }}"
+    priv: ALL 
+
+- name: Ensure lemur user does not have uneccessarry privileges
+  become: true
+  become_user: postgres
+  become_method: su
+  postgresql_user:
+    name: lemur
+    role_attr_flags: NOSUPERUSER,NOCREATEDB
+
+- name: Create trgm postgres extension on lemur database
+  become: true
+  become_user: postgres
+  become_method: su
+  postgresql_ext:
+    db: lemur
+    name: pg_trgm
+# vim:ft=ansible

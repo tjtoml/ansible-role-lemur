@@ -1,0 +1,11 @@
+---
+- include_tasks: Centos-7.yml
+- include_tasks: lemur-setup.yml
+- include_tasks: lemur-compile.yml
+- include_tasks: postgres-configure.yml
+- include_tasks: lemur-configure.yml
+- include_tasks: "{{ ssl_type }}.yml"
+- include_tasks: nginx.yml
+- include_tasks: firewall.yml
+
+# vim:ft=ansible

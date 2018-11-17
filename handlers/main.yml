@@ -1,0 +1,14 @@
+---
+- name: restart lemur
+  service:
+    name: lemur
+    state: restarted
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+
+
+# vim:ft=ansible
+

@@ -1,0 +1,58 @@
+---
+- name: Apply SSL nginx config template
+  template:
+    src: lemur-ssl.nginx.conf.j2
+    dest: /etc/nginx/conf.d/lemur-ssl  
+  notify: restart nginx
+
+- name: Create log files
+  copy:
+    content: ""
+    dest: /var/log/nginx/{{item}}
+    force: no
+    owner: www-data
+    group: adm
+    mode: 0640
+  with_items:
+    - lemur.access.log
+    - lemur.error.log
+  when: ansible_os_family == "Debian"
+
+- name: Create log files
+  copy:
+    content: ""
+    dest: /var/log/nginx/{{item}}
+    force: no
+    owner: nginx
+    group: nginx
+    mode: 0640
+  with_items:
+    - lemur.access.log
+    - lemur.error.log
+  when: ansible_os_family == "RedHat"
+
+- name: Create /etc/nginx/ssl
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Copy SSL certs to /etc/nginx/SSL
+  copy:
+    src: "{{item}}"
+    dest: /etc/nginx/ssl/{{item}}
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+    - cpsinet.com.pem
+    - cpsinet.com.key
+
+- name: Generate Diffie-Hellman Paramaters
+  openssl_dhparam:
+    path: /etc/nginx/ssl/dhparam.pem
+    size: 2048
+
+# vim:ft=ansible

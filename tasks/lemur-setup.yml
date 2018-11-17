@@ -1,0 +1,57 @@
+---
+- name: Create lemur group
+  group:
+    name: lemur
+    state: present
+
+- name: Create lemur user
+  user:
+    name: lemur
+    group: lemur
+    state: present
+    system: yes
+
+- name: Create /www directory
+  file:
+    path: /www
+    state: directory
+    owner: root
+    group: lemur
+    mode: 0775
+
+- name: Create /etc/lemur directory
+  file:
+    path: /etc/lemur
+    state: directory
+
+- name: Clone lemur git repo
+  become: true
+  become_user: lemur
+  become_method: su
+  git:
+    repo: "https://github.com/Netflix/lemur"
+    dest: /www/lemur
+
+- name: Start and enable postgresql
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+  when: ansible_os_family == "Debian"
+
+- name: Initialize postgres DB
+  command: "/usr/pgsql-9.6/bin/postgresql96-setup initdb"
+  args:
+    creates: /var/lib/pgsql/9.6/data/PG_VERSION
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable postgresql 
+  service:
+    name: postgresql-9.6
+    state: started
+    enabled: true
+  when: ansible_os_family == "RedHat"
+
+
+
+# vim:ft=ansible
